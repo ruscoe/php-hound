@@ -1,6 +1,7 @@
 use walkdir::WalkDir;
 use regex::Regex;
 use std::fs;
+use std::path::Path;
 use clap::Parser;
 
 /// PHP Hound - An opinionated PHP issue sniffer.
@@ -31,35 +32,45 @@ fn main() {
 
     for entry in WalkDir::new(&args.path).into_iter().filter_map(Result::ok) {
         if entry.path().extension().map(|e| e == "php").unwrap_or(false) {
-            let path = entry.path();
-            if let Ok(content) = fs::read_to_string(path) {
-                for (i, line) in content.lines().enumerate() {
-                    if assignment_rx.is_match(line) {
-                        println!(
-                            "Possible accidental assignment in {} at line {}:\n  {}\n",
-                            path.display(),
-                            i + 1,
-                            line.trim()
-                        );
-                    }
-                    if increment_rx.is_match(line) {
-                        println!(
-                            "Increment / decrement in condition in {} at line {}:\n  {}\n",
-                            path.display(),
-                            i + 1,
-                            line.trim()
-                        );
-                    }
-                    if eval_rx.is_match(line) {
-                        println!(
-                            "Use of eval() in {} at line {}:\n  {}\n",
-                            path.display(),
-                            i + 1,
-                            line.trim()
-                        );
-                    }
-                }
-            }
+            process_php_file(entry.path(), &assignment_rx, &increment_rx, &eval_rx);
+        }
+    }
+}
+
+// Processes a PHP file and checks each line for issues.
+fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, eval_rx: &Regex) {
+    let content = match fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(err) => {
+            eprintln!("Failed to read {}: {}", path.display(), err);
+            return;
+        }
+    };
+
+    for (i, line) in content.lines().enumerate() {
+        if assignment_rx.is_match(line) {
+            println!(
+                "Possible accidental assignment in {} at line {}:\n  {}\n",
+                path.display(),
+                i + 1,
+                line.trim()
+            );
+        }
+        if increment_rx.is_match(line) {
+            println!(
+                "Increment / decrement in condition in {} at line {}:\n  {}\n",
+                path.display(),
+                i + 1,
+                line.trim()
+            );
+        }
+        if eval_rx.is_match(line) {
+            println!(
+                "Use of eval() in {} at line {}:\n  {}\n",
+                path.display(),
+                i + 1,
+                line.trim()
+            );
         }
     }
 }
