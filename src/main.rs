@@ -26,6 +26,9 @@ fn main() {
     // Regex to catch use of eval().
     let eval_rx = Regex::new(r"\beval\s*\(").unwrap();
 
+    // Introduction message.
+    println!("PHP Hound - An opinionated PHP issue sniffer by Dan Ruscoe.\n");
+
     for entry in WalkDir::new(&args.path).into_iter().filter_map(Result::ok) {
         if entry.path().extension().map(|e| e == "php").unwrap_or(false) {
             let path = entry.path();
