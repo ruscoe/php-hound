@@ -1,3 +1,5 @@
+![php-hound-banner](https://github.com/user-attachments/assets/7fcd6bcf-a837-4d00-a101-b60f260120c9)
+
 # PHP Hound
 
 An opinionated PHP issue sniffer written in Rust.
