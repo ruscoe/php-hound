@@ -23,6 +23,9 @@ fn main() {
     // Regex to catch ++ or -- in conditionals.
     let increment_rx = Regex::new(r"(if|elseif)\s*\([^)]*(\+\+|--)[^)]*\)").unwrap();
 
+    // Regex to catch use of eval().
+    let eval_rx = Regex::new(r"\beval\s*\(").unwrap();
+
     for entry in WalkDir::new(&args.path).into_iter().filter_map(Result::ok) {
         if entry.path().extension().map(|e| e == "php").unwrap_or(false) {
             let path = entry.path();
@@ -39,6 +42,14 @@ fn main() {
                     if increment_rx.is_match(line) {
                         println!(
                             "Increment / decrement in condition in {} at line {}:\n  {}",
+                            path.display(),
+                            i + 1,
+                            line.trim()
+                        );
+                    }
+                    if eval_rx.is_match(line) {
+                        println!(
+                            "Use of eval() in {} at line {}:\n  {}",
                             path.display(),
                             i + 1,
                             line.trim()
