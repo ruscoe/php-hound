@@ -1,3 +1,3 @@
 # PHP Hound
 
-A Rust script that checks PHP scripts for issues.
+An opinionated PHP issue sniffer written in Rust.
