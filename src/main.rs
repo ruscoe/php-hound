@@ -33,7 +33,7 @@ fn main() {
                 for (i, line) in content.lines().enumerate() {
                     if assignment_rx.is_match(line) {
                         println!(
-                            "Possible accidental assignment in {} at line {}:\n  {}",
+                            "Possible accidental assignment in {} at line {}:\n  {}\n",
                             path.display(),
                             i + 1,
                             line.trim()
@@ -41,7 +41,7 @@ fn main() {
                     }
                     if increment_rx.is_match(line) {
                         println!(
-                            "Increment / decrement in condition in {} at line {}:\n  {}",
+                            "Increment / decrement in condition in {} at line {}:\n  {}\n",
                             path.display(),
                             i + 1,
                             line.trim()
@@ -49,7 +49,7 @@ fn main() {
                     }
                     if eval_rx.is_match(line) {
                         println!(
-                            "Use of eval() in {} at line {}:\n  {}",
+                            "Use of eval() in {} at line {}:\n  {}\n",
                             path.display(),
                             i + 1,
                             line.trim()
