@@ -4,6 +4,12 @@
 
 An opinionated PHP issue sniffer written in Rust.
 
+## Usage
+
+Run with the path to your PHP files. Example:
+
+`cargo run -- -p examples`
+
 ## Scans for
 
 ### Possible accidental assignment
