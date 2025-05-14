@@ -7,6 +7,9 @@ $b = 1;
 if ($a = $b) {}
 
 // Will trigger a php-hound warning.
+if (false) {} elseif ($a = $b) {}
+
+// Will trigger a php-hound warning.
 while ($a = $b) {}
 
 // Will not trigger a php-hound warning.
