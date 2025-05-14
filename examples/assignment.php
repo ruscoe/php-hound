@@ -10,6 +10,9 @@ if ($a = $b) {}
 if (false) {} elseif ($a = $b) {}
 
 // Will trigger a php-hound warning.
+if ($a = time()) {}
+
+// Will trigger a php-hound warning.
 while ($a = $b) {}
 
 // Will not trigger a php-hound warning.
