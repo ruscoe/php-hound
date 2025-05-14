@@ -1,0 +1,9 @@
+[package]
+name = "php-hound"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+walkdir = "2"
+regex = "1"
+clap = { version = "4", features = ["derive"] }
