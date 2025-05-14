@@ -31,3 +31,7 @@ be confusing.
 ### Use of the eval() function
 
 Using `eval()` is a security risk, allowing possible remote code execution.
+
+### Use of the var_dump() function
+
+This usually means some debug code has been left in the codebase.
