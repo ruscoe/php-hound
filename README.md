@@ -6,9 +6,13 @@ An opinionated PHP issue sniffer written in Rust.
 
 ## Usage
 
-Run with the path to your PHP files. Example:
+Run with the path to your PHP files:
 
 `cargo run -- -p examples`
+
+You can optionally ignore paths:
+
+`cargo run -- --path examples --ignore examples/vendor --ignore examples/tests`
 
 ## Scans for
 
