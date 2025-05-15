@@ -1,7 +1,7 @@
 use walkdir::WalkDir;
 use regex::Regex;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use clap::Parser;
 
 /// PHP Hound - An opinionated PHP issue sniffer.
@@ -10,13 +10,18 @@ use clap::Parser;
 #[command(about = "Scans PHP files for possible issues.", long_about = None)]
 
 struct Cli {
-    /// Path to directory to scan
+    // Path to directory to scan.
     #[arg(short, long, default_value = ".")]
     path: String,
+
+    // Paths to ignore.
+    #[arg(short, long)]
+    ignore: Vec<String>,
 }
 
 fn main() {
     let args = Cli::parse();
+    let ignore_paths: Vec<PathBuf> = args.ignore.iter().map(PathBuf::from).collect();
 
     // Regex to catch potential accidental assignments in if/while/elseif conditions.
     let assignment_rx = Regex::new(r"(if|elseif)\s*\(([^)]*[^=!<>])=([^=][^)]*)\)").unwrap();
@@ -34,8 +39,14 @@ fn main() {
     println!("PHP Hound - An opinionated PHP issue sniffer by Dan Ruscoe.\n");
 
     for entry in WalkDir::new(&args.path).into_iter().filter_map(Result::ok) {
-        if entry.path().extension().map(|e| e == "php").unwrap_or(false) {
-            process_php_file(entry.path(), &assignment_rx, &increment_rx, &eval_rx, &vardump_rx);
+        let path = entry.path();
+
+        if ignore_paths.iter().any(|ignore| path.starts_with(ignore)) {
+            continue;
+        }
+
+        if path.extension().map(|e| e == "php").unwrap_or(false) {
+            process_php_file(path, &assignment_rx, &increment_rx, &eval_rx, &vardump_rx);
         }
     }
 }
