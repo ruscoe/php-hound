@@ -19,7 +19,7 @@ fn main() {
     let args = Cli::parse();
 
     // Regex to catch potential accidental assignments in if/while/elseif conditions.
-    let assignment_rx = Regex::new(r"(if|while|elseif)\s*\(([^)]*[^=!<>])=([^=][^)]*)\)").unwrap();
+    let assignment_rx = Regex::new(r"(if|elseif)\s*\(([^)]*[^=!<>])=([^=][^)]*)\)").unwrap();
 
     // Regex to catch ++ or -- in conditionals.
     let increment_rx = Regex::new(r"(if|elseif)\s*\([^)]*(\+\+|--)[^)]*\)").unwrap();
