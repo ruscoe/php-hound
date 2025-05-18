@@ -88,7 +88,7 @@ fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, ev
         }
         if vardump_rx.is_match(line) {
             println!(
-                "Use of var_dump() in {} at line {}:\n  {}",
+                "Use of var_dump() in {} at line {}:\n  {}\n",
                 path.display(),
                 i + 1,
                 line.trim()
