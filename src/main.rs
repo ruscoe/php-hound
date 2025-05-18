@@ -3,6 +3,7 @@ use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
 use clap::Parser;
+use once_cell::sync::Lazy;
 
 /// PHP Hound - An opinionated PHP issue sniffer.
 #[derive(Parser)]
@@ -19,21 +20,29 @@ struct Cli {
     ignore: Vec<String>,
 }
 
+// Regex to catch potential accidental assignments in if/while/elseif conditions.
+static ASSIGNMENT_RX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(if|elseif)\s*\(([^)]*[^=!<>])=([^=][^)]*)\)").unwrap()
+});
+
+// Regex to catch ++ or -- in conditionals.
+static INCREMENT_RX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(if|elseif)\s*\([^)]*(\+\+|--)[^)]*\)").unwrap()
+});
+
+// Regex to catch use of eval().
+static EVAL_RX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\beval\s*\(").unwrap()
+});
+
+// Regex to catch use of var_dump().
+static VARDUMP_RX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\bvar_dump\s*\(").unwrap()
+});
+
 fn main() {
     let args = Cli::parse();
     let ignore_paths: Vec<PathBuf> = args.ignore.iter().map(PathBuf::from).collect();
-
-    // Regex to catch potential accidental assignments in if/while/elseif conditions.
-    let assignment_rx = Regex::new(r"(if|elseif)\s*\(([^)]*[^=!<>])=([^=][^)]*)\)").unwrap();
-
-    // Regex to catch ++ or -- in conditionals.
-    let increment_rx = Regex::new(r"(if|elseif)\s*\([^)]*(\+\+|--)[^)]*\)").unwrap();
-
-    // Regex to catch use of eval().
-    let eval_rx = Regex::new(r"\beval\s*\(").unwrap();
-
-    // Regex to catch use of var_dump().
-    let vardump_rx = Regex::new(r"\bvar_dump\s*\(").unwrap();
 
     // Introduction message.
     println!("PHP Hound - An opinionated PHP issue sniffer by Dan Ruscoe.\n");
@@ -46,13 +55,13 @@ fn main() {
         }
 
         if path.extension().map(|e| e == "php").unwrap_or(false) {
-            process_php_file(path, &assignment_rx, &increment_rx, &eval_rx, &vardump_rx);
+            process_php_file(path);
         }
     }
 }
 
 // Processes a PHP file and checks each line for issues.
-fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, eval_rx: &Regex, vardump_rx: &Regex) {
+fn process_php_file(path: &Path) {
     let content = match fs::read_to_string(path) {
         Ok(text) => text,
         Err(err) => {
@@ -62,7 +71,7 @@ fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, ev
     };
 
     for (i, line) in content.lines().enumerate() {
-        if assignment_rx.is_match(line) {
+        if ASSIGNMENT_RX.is_match(line) {
             println!(
                 "Possible accidental assignment in {} at line {}:\n  {}\n",
                 path.display(),
@@ -70,7 +79,7 @@ fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, ev
                 line.trim()
             );
         }
-        if increment_rx.is_match(line) {
+        if INCREMENT_RX.is_match(line) {
             println!(
                 "Increment / decrement in condition in {} at line {}:\n  {}\n",
                 path.display(),
@@ -78,7 +87,7 @@ fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, ev
                 line.trim()
             );
         }
-        if eval_rx.is_match(line) {
+        if EVAL_RX.is_match(line) {
             println!(
                 "Use of eval() in {} at line {}:\n  {}\n",
                 path.display(),
@@ -86,7 +95,7 @@ fn process_php_file(path: &Path, assignment_rx: &Regex, increment_rx: &Regex, ev
                 line.trim()
             );
         }
-        if vardump_rx.is_match(line) {
+        if VARDUMP_RX.is_match(line) {
             println!(
                 "Use of var_dump() in {} at line {}:\n  {}\n",
                 path.display(),

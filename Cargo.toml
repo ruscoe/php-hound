@@ -7,3 +7,4 @@ edition = "2021"
 walkdir = "2"
 regex = "1"
 clap = { version = "4", features = ["derive"] }
+once_cell = "1"
